@@ -29,7 +29,7 @@ function successLoader(loader, contents, inputMap, options, callback) {
     }
     if (outputMap && outputMap.mappings) {
         if (inputMap) {
-            const map = merge_map_1.default(inputMap, outputMap);
+            const map = (0, merge_map_1.default)(inputMap, outputMap);
             if (map) {
                 callback(null, code, map);
             }
@@ -58,7 +58,11 @@ function minifyLitHtml(sourceFileName, contents, options, loader) {
                             node.tag.property.type === 'Identifier' &&
                             node.tag.property.name === 'html')) {
                         const mini = minify(chunks.slice(node.quasi.range[0] + 1, node.quasi.range[1] - 1).join(''), options.htmlMinifier);
-                        return Object.assign({}, node, { quasi: Object.assign({}, node.quasi, { quasis: [
+                        return {
+                            ...node,
+                            quasi: {
+                                ...node.quasi,
+                                quasis: [
                                     {
                                         type: 'TemplateElement',
                                         value: {
@@ -66,7 +70,9 @@ function minifyLitHtml(sourceFileName, contents, options, loader) {
                                         },
                                         range: [node.quasi.range[0], mini.length],
                                     },
-                                ] }) });
+                                ],
+                            },
+                        };
                     }
                 }
             },
@@ -91,7 +97,23 @@ function getLoaderOptions(loader) {
     return options;
 }
 function makeLoaderOptions(loaderOptions) {
-    const options = Object.assign({}, loaderOptions, { esprima: Object.assign({}, loaderOptions.esprima, { loc: true, range: true, sourceType: loaderOptions.esprima ? loaderOptions.esprima.sourceType || 'module' : 'module' }), htmlMinifier: Object.assign({ caseSensitive: true, collapseWhitespace: true, minifyCSS: true, preventAttributesEscaping: true, removeComments: true }, loaderOptions.htmlMinifier) });
+    const options = {
+        ...loaderOptions,
+        esprima: {
+            ...loaderOptions.esprima,
+            loc: true,
+            range: true,
+            sourceType: loaderOptions.esprima ? loaderOptions.esprima.sourceType || 'module' : 'module',
+        },
+        htmlMinifier: {
+            caseSensitive: true,
+            collapseWhitespace: true,
+            minifyCSS: true,
+            preventAttributesEscaping: true,
+            removeComments: true,
+            ...loaderOptions.htmlMinifier,
+        },
+    };
     return options;
 }
 module.exports = loader;
